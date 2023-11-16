@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.ssafy.trip.user.model.dao.UserDao">
+	
+	<resultMap type="user" id="user">
+		<result column="user_id" property="userId"/>
+		<result column="user_name" property="userName"/>
+		<result column="user_password" property="userPassword"/>
+		<result column="email_id" property="emailId"/>
+		<result column="email_domain" property="emailDomain"/>
+		<result column="join_date" property="joinDate"/>
+		<result column="token" property="refreshToken"/>
+	</resultMap>
+	
+	<!-- 유저 등록 -->
+	<insert id="joinUser" parameterType="user">
+		INSERT INTO users (user_id, user_password, user_name, email_id, email_domain, join_date)
+		VALUES (#{userId},#{userPassword},#{userName},#{emailId},#{emailDomain}, now())
+	</insert>
+	
+	<!-- 로그인 -->
+	<select id="loginUser" parameterType="map" resultMap="user">
+		select user_id, user_name
+		from users
+		where user_id = #{userId} and user_password = #{userPassword}
+	</select>
+	
+	<!-- 유저 조회 -->
+	<select id="findByUserId" parameterType="string" resultMap="user">
+		select user_id, user_password, user_name, email_id, email_domain, join_date
+		from users
+		where user_id = #{userId}
+	</select>
+	
+	<!-- 유저 정보 업데이트 -->
+	<update id="updateUser" parameterType="user">
+		update users
+		<trim prefix="set" suffixOverrides=",">
+			<if test="userPassword != null">user_password = #{userPassword},</if>
+			<if test="userName != null">user_name = #{userName},</if>
+			<if test="emailId != null">email_id = #{emailId},</if>
+			<if test="emailDomain != null">email_domain = #{emailDomain},</if>
+		</trim>
+		where user_id = #{userId}
+	</update>
+	
+	<!-- 유저 삭제 -->
+	<delete id="deleteUser" parameterType="String">
+		delete from users
+		where user_id = #{userId}
+	</delete>
+	
+	<select id="userInfo" parameterType="string" resultMap="user">
+		select user_name, user_id, email_id, email_domain, join_date
+		from users
+		where user_id = #{userId}
+	</select>
+	
+	<!-- 토근 관리 -->
+	<update id="saveRefreshToken" parameterType="map">
+		update users
+		set token = #{token}
+		where user_id = #{userId}
+	</update>
+	
+	<select id="getRefreshToken" parameterType="string" resultType="string">
+		select token
+		from users
+		where user_id = #{userId}
+	</select>
+	
+	<update id="deleteRefreshToken" parameterType="map">
+		update users
+		set token = #{token, jdbcType=VARCHAR}
+		where user_id = #{userId}
+	</update>
+	
+</mapper>
