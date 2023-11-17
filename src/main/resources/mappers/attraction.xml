@@ -11,10 +11,33 @@
 		<result column="gugun_name" property="gugunName"/>
 	</resultMap>
 	
+	<resultMap type="ContentType" id="ContentType">
+		<result column="content_type_id" property="contentTypeId"/>
+		<result column="content_type_name" property="contentTypeName"/>
+	</resultMap>
+	
 	<resultMap type="AttractionDescription" id="AttractionDescription">
 		<result column="content_id" property="contentId"/>
 		<result column="homepage" property="homepage"/>
 		<result column="overview" property="overview"/>
+	</resultMap>
+	
+	<resultMap type="Attraction" id="Attraction">
+		<result column="content_id" property="contentId"/>
+		<result column="content_type_id" property="contentTypeId"/>
+		<result column="title" property="title"/>
+		<result column="addr1" property="addr1"/>
+		<result column="addr2" property="addr2"/>
+		<result column="zipcode" property="zipcode"/>
+		<result column="tel" property="tel"/>
+		<result column="first_image" property="firstImage"/>
+		<result column="first_image2" property="firstImage2"/>
+		<result column="readcount" property="readcount"/>
+		<result column="sido_code" property="sidoCode"/>
+		<result column="gugun_code" property="gugunCode"/>
+		<result column="latitude" property="latitude"/>
+		<result column="longitude" property="longitude"/>
+		<result column="mlevel" property="mlevel"/>
 	</resultMap>
 	
 	<resultMap type="SearchCondition" id="SearchCondition">
@@ -36,9 +59,9 @@
 		WHERE	g.sido_code=#{areaCode}
 	</select>
 	
-	<select id="listAttraction" parameterType="SearchCondition" resultMap="AttractionDescription">
-		SELECT	content_id, homepage, overview
-		FROM	attraction_description
+	<select id="listAttraction" parameterType="SearchCondition" resultMap="Attraction">
+		SELECT	content_id, content_type_id, title, addr1, zipcode, tel, first_image, sido_code, gugun_code, latitude, longitude, mlevel
+		FROM	attraction_info
 		WHERE	content_id in (SELECT	content_id
 								FROM	attraction_info
 								<where>
@@ -53,6 +76,11 @@
 		SELECT	content_id, homepage, overview
 		FROM	attraction_description
 		WHERE	content_id=#{contentId}
+	</select>
+	
+	<select id="getContentType" resultMap="ContentType">
+		SELECT	content_type_id, content_type_name
+		FROM	attraction_content_type
 	</select>
 
 

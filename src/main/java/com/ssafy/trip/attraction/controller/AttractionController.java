@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.trip.attraction.model.AreaCode;
+import com.ssafy.trip.attraction.model.Attraction;
 import com.ssafy.trip.attraction.model.AttractionDescription;
+import com.ssafy.trip.attraction.model.ContentType;
 import com.ssafy.trip.attraction.model.SearchCondition;
 import com.ssafy.trip.attraction.model.service.AttractionService;
 
@@ -52,13 +54,32 @@ public class AttractionController {
 			return exceptionHandling(e);
 		}
 	}
+	
+	@GetMapping(value = "list/type")
+	public ResponseEntity<?> getContentType() {
+		log.debug("ContentType call");
+		try {
+			List<ContentType> list = service.getContentType();
+			if (list != null) {
+				return ResponseEntity.
+						status(HttpStatus.OK).
+						body(list);
+			}
+			return ResponseEntity.
+					status(HttpStatus.OK).
+					body(Collections.EMPTY_LIST);
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
 
 	@GetMapping(value = "list/")
-	public ResponseEntity<?> listAttraction(SearchCondition serchCondition) {
+	public ResponseEntity<?> listAttraction(SearchCondition searchCondition) {
 		log.debug("listAttraction call");
-		System.out.println(serchCondition);
+		System.out.println(searchCondition);
+		
 		try {
-			List<AttractionDescription> list = service.listAttraction(serchCondition);
+			List<Attraction> list = service.listAttraction(searchCondition);
 			if (list != null) {
 				return ResponseEntity.
 						status(HttpStatus.OK).
