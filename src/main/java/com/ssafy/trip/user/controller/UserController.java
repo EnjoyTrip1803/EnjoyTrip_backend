@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.trip.user.model.User;
@@ -31,13 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/users")
-@CrossOrigin("*")
 @Api(tags = {"유저 컨트롤러 API V1"})
 public class UserController {
-	
-	private UserService userService;
-	private JWTUtil jwtUtil;
-	
+
+	private final UserService userService;
+	private final JWTUtil jwtUtil;
+
 	@Autowired
 	public UserController(UserService userService, JWTUtil jwtUtil) {
 		this.userService = userService;
@@ -46,8 +44,9 @@ public class UserController {
 
 	@ApiOperation(value = "유저 등록", notes = "유저 정보를 받아 등록")
 	@PostMapping("/join")
-	public ResponseEntity<?> userRegister(User user){
+	public ResponseEntity<?> userRegister(@RequestBody User user){
 		log.debug("userRegister User : {}", user);
+		System.out.println(user);
 		try {
 			userService.joinUser(user);
 			Map<String, String> result = new HashMap<>();
@@ -58,66 +57,53 @@ public class UserController {
 			return exceptionHandling(e);
 		}
 	}
-	
 
-//	@ApiOperation(value = "유저 로그인", notes = "유저 정보를 받아 로그인 처리")
-//	@PostMapping("/login")
-//	public ResponseEntity<?> userLogin(@RequestParam Map<String, String> map){
-//		log.debug("login map : {}", map);
-//		System.out.println(map);
-//		try {
-//			User user = userService.loginUser(map);
-//			return ResponseEntity.status(HttpStatus.OK).body(user);
-//		} catch (Exception e) {
-//			return exceptionHandling(e);
-//		}
-//	}
-	
 	@ApiOperation(value = "로그인", notes = "아이디와 비밀번호를 이용하여 로그인 처리.")
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, Object>> userLogin(@RequestBody Map<String, String> map) {
 		log.debug("login user : {}", map);
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		HttpStatus status = HttpStatus.ACCEPTED;
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
 		try {
 			User loginUser = userService.loginUser(map);
+			log.debug("log user : {}", loginUser);
 			if(loginUser != null) {
+				log.debug("check log user : {}", loginUser);
 				String accessToken = jwtUtil.createAccessToken(loginUser.getUserId());
 				String refreshToken = jwtUtil.createRefreshToken(loginUser.getUserId());
 				log.debug("access token : {}", accessToken);
 				log.debug("refresh token : {}", refreshToken);
-				
+
 //				발급받은 refresh token을 DB에 저장.
 				userService.saveRefreshToken(loginUser.getUserId(), refreshToken);
-				
+
 //				JSON으로 token 전달.
 				resultMap.put("access-token", accessToken);
 				resultMap.put("refresh-token", refreshToken);
-				
+
 				status = HttpStatus.CREATED;
 			} else {
 				resultMap.put("message", "아이디 또는 패스워드를 확인해주세요.");
 				status = HttpStatus.UNAUTHORIZED;
-			} 
-			
+			}
+
 		} catch (Exception e) {
 			log.debug("로그인 에러 발생 : {}", e);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
-		return new ResponseEntity<Map<String, Object>>(resultMap, status);
+		return new ResponseEntity<>(resultMap, status);
 	}
-	
 
-	
+
+
 	@ApiOperation(value = "회원인증", notes = "회원 정보를 담은 Token을 반환한다.", response = Map.class)
 	@GetMapping("/info/{userId}")
 	public ResponseEntity<Map<String, Object>> getInfo(
 			@PathVariable("userId") @ApiParam(value = "인증할 회원의 아이디.", required = true) String userId,
 			HttpServletRequest request) {
-//		logger.debug("userId : {} ", userId);
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = HttpStatus.ACCEPTED;
+		HttpStatus status;
 		if (jwtUtil.checkToken(request.getHeader("Authorization"))) {
 			log.info("사용 가능한 토큰!!!");
 			try {
@@ -134,14 +120,14 @@ public class UserController {
 			log.error("사용 불가능 토큰!!!");
 			status = HttpStatus.UNAUTHORIZED;
 		}
-		return new ResponseEntity<Map<String, Object>>(resultMap, status);
+		return new ResponseEntity<>(resultMap, status);
 	}
 
 	@ApiOperation(value = "로그아웃", notes = "회원 정보를 담은 Token을 제거한다.", response = Map.class)
 	@GetMapping("/logout/{userId}")
 	public ResponseEntity<?> removeToken(@PathVariable ("userId") @ApiParam(value = "로그아웃할 회원의 아이디.", required = true) String userId) {
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = HttpStatus.ACCEPTED;
+		HttpStatus status;
 		try {
 			userService.deleRefreshToken(userId);
 			status = HttpStatus.OK;
@@ -150,7 +136,7 @@ public class UserController {
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
-		return new ResponseEntity<Map<String, Object>>(resultMap, status);
+		return new ResponseEntity<>(resultMap, status);
 
 	}
 
@@ -174,11 +160,11 @@ public class UserController {
 			log.debug("리프레쉬토큰도 사용불가!!!!!!!");
 			status = HttpStatus.UNAUTHORIZED;
 		}
-		return new ResponseEntity<Map<String, Object>>(resultMap, status);
+		return new ResponseEntity<>(resultMap, status);
 	}
-	
-	
-	
+
+
+
 	@ApiOperation(value = "유저 로그아웃", notes = "유저 아이디를 받아 로그아웃 처리")
 	@PostMapping("/logout")
 	public ResponseEntity<?> userLogout(String userId){
@@ -193,21 +179,22 @@ public class UserController {
 			return exceptionHandling(e);
 		}
 	}
-	
+
 	@ApiOperation(value = "유저 정보", notes = "유저 아이디를 받아 해당 유저 정보 반환")
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> userInfo(@PathVariable String userId){
 		try {
+			System.out.println(userId);
 			User user = userService.findByUserId(userId);
 			return ResponseEntity.status(HttpStatus.OK).body(user);
 		} catch (Exception e) {
 			return exceptionHandling(e);
 		}
 	}
-	
+
 	@ApiOperation(value = "유저 정보 업데이트", notes = "수정할 데이터를 받아 유저 정보 업데이트")
 	@PutMapping("/modify")
-	public ResponseEntity<?> userUpdate(User user){
+	public ResponseEntity<?> userUpdate(@RequestBody User user){
 		try {
 			userService.updateUser(user);
 			Map<String, String> result = new HashMap<>();
@@ -217,7 +204,7 @@ public class UserController {
 			return exceptionHandling(e);
 		}
 	}
-	
+
 	@ApiOperation(value = "유저 삭제", notes = "유저 아이디를 받아 유저 정보 삭제")
 	@DeleteMapping("/{userId}")
 	public ResponseEntity<?> userDelete(@PathVariable String userId){
@@ -230,7 +217,7 @@ public class UserController {
 			return exceptionHandling(e);
 		}
 	}
-	
+
 	private ResponseEntity<String> exceptionHandling(Exception e) {
 		e.printStackTrace();
 		return new ResponseEntity<String>("Error : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
