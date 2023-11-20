@@ -30,8 +30,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User findByUserId(String id) throws Exception {
-		return userDao.findByUserId(id);
+	public User findByUserEmail(String userEmail) throws Exception {
+		return userDao.findByUserEmail(userEmail);
+	}
+
+	@Override
+	public User findByUserName(String userName) throws Exception{
+		return userDao.findByUserName(userName);
 	}
 
 	@Override
@@ -45,27 +50,27 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public User userInfo(String userId) throws Exception {
-		return userDao.userInfo(userId);
+	public User userInfo(String userEmail) throws Exception {
+		return userDao.userInfo(userEmail);
 	}
 	
 	@Override
-	public void saveRefreshToken(String userId, String refreshToken) throws Exception {
+	public void saveRefreshToken(String userEmail, String refreshToken) throws Exception {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("userId", userId);
+		map.put("userEmail", userEmail);
 		map.put("token", refreshToken);
 		userDao.saveRefreshToken(map);
 	}
 
 	@Override
-	public Object getRefreshToken(String userId) throws Exception {
-		return userDao.getRefreshToken(userId);
+	public Object getRefreshToken(String userEmail) throws Exception {
+		return userDao.getRefreshToken(userEmail);
 	}
 
 	@Override
-	public void deleRefreshToken(String userId) throws Exception {
+	public void deleRefreshToken(String userEmail) throws Exception {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("userId", userId);
+		map.put("userEmail", userEmail);
 		map.put("token", null);
 		userDao.deleteRefreshToken(map);
 	}

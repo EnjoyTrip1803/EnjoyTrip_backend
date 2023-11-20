@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +45,6 @@ public class UserController {
 	@PostMapping("/join")
 	public ResponseEntity<?> userRegister(@RequestBody User user){
 		log.debug("userRegister User : {}", user);
-		System.out.println(user);
 		try {
 			userService.joinUser(user);
 			Map<String, String> result = new HashMap<>();
@@ -58,7 +56,7 @@ public class UserController {
 		}
 	}
 
-	@ApiOperation(value = "로그인", notes = "아이디와 비밀번호를 이용하여 로그인 처리.")
+	@ApiOperation(value = "로그인", notes = "이메일과 비밀번호를 이용하여 로그인 처리.")
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, Object>> userLogin(@RequestBody Map<String, String> map) {
 		log.debug("login user : {}", map);
@@ -69,13 +67,13 @@ public class UserController {
 			log.debug("log user : {}", loginUser);
 			if(loginUser != null) {
 				log.debug("check log user : {}", loginUser);
-				String accessToken = jwtUtil.createAccessToken(loginUser.getUserId());
-				String refreshToken = jwtUtil.createRefreshToken(loginUser.getUserId());
+				String accessToken = jwtUtil.createAccessToken(loginUser.getUserEmail());
+				String refreshToken = jwtUtil.createRefreshToken(loginUser.getUserEmail());
 				log.debug("access token : {}", accessToken);
 				log.debug("refresh token : {}", refreshToken);
 
 //				발급받은 refresh token을 DB에 저장.
-				userService.saveRefreshToken(loginUser.getUserId(), refreshToken);
+				userService.saveRefreshToken(loginUser.getUserEmail(), refreshToken);
 
 //				JSON으로 token 전달.
 				resultMap.put("access-token", accessToken);
@@ -98,9 +96,9 @@ public class UserController {
 
 
 	@ApiOperation(value = "회원인증", notes = "회원 정보를 담은 Token을 반환한다.", response = Map.class)
-	@GetMapping("/info/{userId}")
+	@GetMapping("/info/{userEmail}")
 	public ResponseEntity<Map<String, Object>> getInfo(
-			@PathVariable("userId") @ApiParam(value = "인증할 회원의 아이디.", required = true) String userId,
+			@PathVariable("userEmail") @ApiParam(value = "인증할 회원의 아이디.", required = true) String userEmail,
 			HttpServletRequest request) {
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
@@ -108,7 +106,7 @@ public class UserController {
 			log.info("사용 가능한 토큰!!!");
 			try {
 //				로그인 사용자 정보.
-				User user = userService.userInfo(userId);
+				User user = userService.userInfo(userEmail);
 				resultMap.put("userInfo", user);
 				status = HttpStatus.OK;
 			} catch (Exception e) {
@@ -124,12 +122,12 @@ public class UserController {
 	}
 
 	@ApiOperation(value = "로그아웃", notes = "회원 정보를 담은 Token을 제거한다.", response = Map.class)
-	@GetMapping("/logout/{userId}")
-	public ResponseEntity<?> removeToken(@PathVariable ("userId") @ApiParam(value = "로그아웃할 회원의 아이디.", required = true) String userId) {
+	@GetMapping("/logout/{userEmail}")
+	public ResponseEntity<?> removeToken(@PathVariable ("userEmail") @ApiParam(value = "로그아웃할 회원의 이메일.", required = true) String userEmail) {
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
-			userService.deleRefreshToken(userId);
+			userService.deleRefreshToken(userEmail);
 			status = HttpStatus.OK;
 		} catch (Exception e) {
 			log.error("로그아웃 실패 : {}", e);
@@ -149,8 +147,8 @@ public class UserController {
 		String token = request.getHeader("refreshToken");
 		log.debug("token : {}, memberDto : {}", token, user);
 		if (jwtUtil.checkToken(token)) {
-			if (token.equals(userService.getRefreshToken(user.getUserId()))) {
-				String accessToken = jwtUtil.createAccessToken(user.getUserId());
+			if (token.equals(userService.getRefreshToken(user.getUserEmail()))) {
+				String accessToken = jwtUtil.createAccessToken(user.getUserEmail());
 				log.debug("token : {}", accessToken);
 				log.debug("정상적으로 액세스토큰 재발급!!!");
 				resultMap.put("access-token", accessToken);
@@ -165,13 +163,13 @@ public class UserController {
 
 
 
-	@ApiOperation(value = "유저 로그아웃", notes = "유저 아이디를 받아 로그아웃 처리")
+	@ApiOperation(value = "유저 로그아웃", notes = "유저 이메일을 받아 로그아웃 처리")
 	@PostMapping("/logout")
-	public ResponseEntity<?> userLogout(String userId){
+	public ResponseEntity<?> userLogout(String userEmail){
 		try {
 			Map<String, String> result = new HashMap<>();
 			result.put("msg", "로그아웃 완료");
-			if(userId != "") return ResponseEntity.status(HttpStatus.OK).body(result);
+			if(userEmail != "") return ResponseEntity.status(HttpStatus.OK).body(result);
 			else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
 			}
@@ -180,12 +178,23 @@ public class UserController {
 		}
 	}
 
-	@ApiOperation(value = "유저 정보", notes = "유저 아이디를 받아 해당 유저 정보 반환")
-	@GetMapping("/{userId}")
-	public ResponseEntity<?> userInfo(@PathVariable String userId){
+	@ApiOperation(value = "유저 정보", notes = "유저 이메일을 받아 해당 유저 정보 반환")
+	@GetMapping("/{userEmail}")
+	public ResponseEntity<?> userInfo(@PathVariable String userEmail){
 		try {
-			System.out.println(userId);
-			User user = userService.findByUserId(userId);
+			System.out.println(userEmail);
+			User user = userService.findByUserEmail(userEmail);
+			return ResponseEntity.status(HttpStatus.OK).body(user);
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
+	@ApiOperation(value = "유저 정보", notes = "유저 닉네임을 받아 해당 유저 정보 반환")
+	@GetMapping("/username/{userName}")
+	public ResponseEntity<?> userNameInfo(@PathVariable String userName){
+		try {
+			System.out.println(userName);
+			User user = userService.findByUserName(userName);
 			return ResponseEntity.status(HttpStatus.OK).body(user);
 		} catch (Exception e) {
 			return exceptionHandling(e);
@@ -206,10 +215,10 @@ public class UserController {
 	}
 
 	@ApiOperation(value = "유저 삭제", notes = "유저 아이디를 받아 유저 정보 삭제")
-	@DeleteMapping("/{userId}")
-	public ResponseEntity<?> userDelete(@PathVariable String userId){
+	@DeleteMapping("/{userEmail}")
+	public ResponseEntity<?> userDelete(@PathVariable String userEmail){
 		try {
-			userService.deleteUser(userId);
+			userService.deleteUser(userEmail);
 			Map<String, String> result = new HashMap<>();
 			result.put("msg", "유저 삭제 완료");
 			return ResponseEntity.status(HttpStatus.OK).body(result);
