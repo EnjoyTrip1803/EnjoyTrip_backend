@@ -24,6 +24,23 @@
 		<result column="word" property="word"/>
 	</resultMap>
 
+	<!--  여행 계획 (TripPlan) Map  -->
+	<resultMap type="tripPlan" id="plan">
+		<result column="plan_id" property="planId"/>
+		<result column="user_id" property="userId"/>
+		<result column="trip_start_date" property="startDate"/>
+		<result column="trip_end_date" property="endDate"/>
+		<result column="status" property="publicStatus"/>
+	</resultMap>
+
+	<!--  여행 참여 맴버 Map	-->
+	<resultMap type="user" id="user">
+		<result column="user_id" property="userId"/>
+		<result column="user_email" property="userEmail"/>
+		<result column="user_name" property="userName"/>
+		<result column="user_img" property="userImg"/>
+	</resultMap>
+
 	<select id="getSido" resultMap="AreaCode">
 		SELECT	sido_code, sido_name
 		FROM	sido
@@ -55,5 +72,77 @@
 		WHERE	content_id=#{contentId}
 	</select>
 
+	<!--  여행 계획 insert  -->
+	<insert id="registTripPlan" parameterType="tripPlan">
+		insert into trip_plan (user_id, trip_start_date, trip_end_date, public)
+		values (#{userId}, #{startDate}, #{endDate}, #{publicStatus})
+	</insert>
 
+	<!--  여행 계획 update -->
+	<update id="updateTripPlan" parameterType="tripPlan">
+		update trip_plan
+		set trip_start_date = #{startDate}, trip_end_date = #{endDate}, public = #{publicStatus}
+		where plan_id = #{planId}
+	</update>
+
+	<!--  여행 계획 delete -->
+	<delete id="deleteTripPlan" parameterType="String">
+		delete from trip_plan
+		where plan_id = #{planId}
+	</delete>
+
+	<!--  여행 계획(public) list -->
+	<select id="listPublicTripPlan" parameterType="String" resultMap="plan">
+		select p.plan_id, m.userEmail, p.startDate, p.endDate, p.publicStatus,
+		from trip_plan p
+		where p.public = true;
+	</select>
+
+	<!--  여행 계획(user) list -->
+	<select id="listUserTripPlan" parameterType="String" resultMap="plan">
+		select p.plan_id, m.userEmail, p.startDate, p.endDate, p.publicStatus,
+		from trip_plan p, users m
+		where b.userId = m.userId;
+	</select>
+
+	<!--  여행세부계획 insert	-->
+	<insert id="registTripAttraction" parameterType="tripAttraction">
+		insert into trip_attraction (plan_id, content_id, visit_date)
+		values (#{planId}, #{contentId}, #{visitDate})
+	</insert>
+
+	<!--  여행세부계획 delete	-->
+	<delete id="deleteTripAttraction" parameterType="TripAttraction">
+		delete from trip_attraction
+		where plan_id = #{planId} and content_id = #{contentId}
+	</delete>
+
+	<!--  여행세부계획 List	-->
+	<select id="listTripAttraction" parameterType="String" resultType="attraction">
+		select i.content_id, i.content_type_id, i.title, i.addr1, i.sido_code, i.gugun_code, i.latitude
+		from trip_plan p
+		    left join trip_attraction a on p.plan_id = a.plan_id
+			left join attraction_info i on a.content_id = i.content_id
+		where p.plan_id = #{planId}
+	</select>
+
+	<!--  여행맴버 insert	-->
+	<insert id="registTripMember" parameterType="tripMember">
+		insert into trip_member (plan_id, user_id)
+		values (#{planId}, #{userId})
+	</insert>
+
+	<!--  여행맴버 delete	-->
+	<delete id="deleteTripMember" parameterType="tripMember">
+		delete from trip_member
+		where plan_id = #{planId} and content_id = #{userId}
+	</delete>
+
+	<!--  여행 참여 맴버 list	-->
+	<select id="listTripMember" parameterType="String" resultMap="user">
+		select u.user_id, u.user_email, u.user_name, u.user_img
+		from trip_plan p
+			 left join trip_member m on p.plan_id = m.plan_id
+			 left join users u on m.user_id = u.user_id
+	</select>
 </mapper>
