@@ -1,7 +1,10 @@
 package com.ssafy.trip.attraction.model.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import com.ssafy.trip.attraction.model.*;
+import com.ssafy.trip.user.model.User;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.ssafy.trip.attraction.model.AreaCode;
@@ -14,4 +17,18 @@ public interface AttractionDao {
 	List<AreaCode> getGugun(int areaCode);
 	List<AttractionDescription> listAttraction(SearchCondition serchCondition);
 	AttractionDescription detailAttraction(int contentId);
+
+	void registTripPlan(TripPlan trip) throws SQLException;
+	void updateTripPlan(TripPlan trip) throws SQLException;
+	void deleteTripPlan(int planId) throws SQLException;
+	List<TripPlan> listPublicTripPlan() throws SQLException;
+	List<TripPlan> listUserTripPlan(String userId) throws SQLException;
+
+	void registTripAttraction(TripAttraction tripAttraction) throws SQLException;
+	void deleteTripAttraction(TripAttraction tripAttraction) throws SQLException;
+	List<Attraction> listTripAttraction(String planId) throws SQLException;
+
+	void registTripMember(TripMember tripMember) throws SQLException;
+	void deleteTripMember(TripMember tripMember) throws SQLException;
+	List<User> listTripMember(String planId) throws SQLException;
 }
