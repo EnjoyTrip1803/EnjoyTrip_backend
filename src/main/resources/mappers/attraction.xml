@@ -103,14 +103,14 @@
 
 	<!--  여행 계획 insert  -->
 	<insert id="registTripPlan" parameterType="tripPlan">
-		insert into trip_plan (user_id, trip_start_date, trip_end_date, public)
-		values (#{userId}, #{startDate}, #{endDate}, #{publicStatus})
+		insert into trip_plan (title, user_id, trip_start_date, trip_end_date, public)
+		values (#{title}, #{userId}, #{startDate}, #{endDate}, #{publicStatus})
 	</insert>
 
 	<!--  여행 계획 update -->
 	<update id="updateTripPlan" parameterType="tripPlan">
 		update trip_plan
-		set trip_start_date = #{startDate}, trip_end_date = #{endDate}, public = #{publicStatus}
+		set title = #{title}, trip_start_date = #{startDate}, trip_end_date = #{endDate}, public = #{publicStatus}
 		where plan_id = #{planId}
 	</update>
 
