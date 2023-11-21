@@ -13,16 +13,13 @@ public class TripPlan {
     @ApiModelProperty(value = "계획 아이디")
     private int planId;
     @ApiModelProperty(value = "생성자 아이디")
-    private String userId;
+    private int userId;
+    @ApiModelProperty(value = "생성자 아이디")
+    private String userEmail;
     @ApiModelProperty(value = "여행 시작일")
-    private Timestamp startDate;
+    private String startDate;
     @ApiModelProperty(value = "여행 종료일")
-    private Timestamp endDate;
+    private String endDate;
     @ApiModelProperty(value = "공개 상태")
     private boolean publicStatus;
-
-    @ApiModelProperty(value = "여행 계획 세부사항")
-    private List<TripAttraction> tripAttractions;
-    @ApiModelProperty(value = "여행 맴버")
-    private List<TripMember> tripMembers;
 }
