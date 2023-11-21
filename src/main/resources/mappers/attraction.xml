@@ -49,6 +49,7 @@
 
 	<!--  여행 계획 (TripPlan) Map  -->
 	<resultMap type="tripPlan" id="plan">
+		<result column="title" property="title"/>
 		<result column="plan_id" property="planId"/>
 		<result column="user_id" property="userId"/>
 		<result column="user_email" property="userEmail"/>
@@ -122,14 +123,14 @@
 
 	<!--  여행 계획(public) list -->
 	<select id="listPublicTripPlan" resultMap="plan">
-		select p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
+		select p.title, p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
 		from trip_plan p left join users m on p.user_id = m.user_id
 		where p.public = true;
 	</select>
 
 	<!--  여행 계획(user) list -->
 	<select id="listUserTripPlan" parameterType="int" resultMap="plan">
-		select p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
+		select p.title, p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
 		from trip_plan p left join users m on p.user_id = m.user_id
 		where p.user_id = #{userId}
 	</select>
