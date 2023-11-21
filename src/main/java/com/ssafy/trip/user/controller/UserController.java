@@ -98,7 +98,7 @@ public class UserController {
 	@ApiOperation(value = "회원인증", notes = "회원 정보를 담은 Token을 반환한다.", response = Map.class)
 	@GetMapping("/info/{userEmail}")
 	public ResponseEntity<Map<String, Object>> getInfo(
-			@PathVariable("userEmail") @ApiParam(value = "인증할 회원의 아이디.", required = true) String userEmail,
+			@PathVariable("userEmail") @ApiParam(value = "인증할 회원의 이메일.", required = true) String userEmail,
 			HttpServletRequest request) {
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
