@@ -25,13 +25,13 @@ public interface AttractionDao {
 	void updateTripPlan(TripPlan trip) throws SQLException;
 	void deleteTripPlan(int planId) throws SQLException;
 	List<TripPlan> listPublicTripPlan() throws SQLException;
-	List<TripPlan> listUserTripPlan(String userId) throws SQLException;
+	List<TripPlan> listUserTripPlan(int userId) throws SQLException;
 
 	void registTripAttraction(TripAttraction tripAttraction) throws SQLException;
 	void deleteTripAttraction(TripAttraction tripAttraction) throws SQLException;
-	List<Attraction> listTripAttraction(String planId) throws SQLException;
+	List<Attraction> listTripAttraction(int planId) throws SQLException;
 
 	void registTripMember(TripMember tripMember) throws SQLException;
 	void deleteTripMember(TripMember tripMember) throws SQLException;
-	List<User> listTripMember(String planId) throws SQLException;
+	List<User> listTripMember(int planId) throws SQLException;
 }

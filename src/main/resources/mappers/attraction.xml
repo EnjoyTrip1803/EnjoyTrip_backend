@@ -51,9 +51,10 @@
 	<resultMap type="tripPlan" id="plan">
 		<result column="plan_id" property="planId"/>
 		<result column="user_id" property="userId"/>
+		<result column="user_email" property="userEmail"/>
 		<result column="trip_start_date" property="startDate"/>
 		<result column="trip_end_date" property="endDate"/>
-		<result column="status" property="publicStatus"/>
+		<result column="public" property="publicStatus"/>
 	</resultMap>
 
 	<!--  여행 참여 맴버 Map	-->
@@ -114,23 +115,23 @@
 	</update>
 
 	<!--  여행 계획 delete -->
-	<delete id="deleteTripPlan" parameterType="String">
+	<delete id="deleteTripPlan" parameterType="int">
 		delete from trip_plan
 		where plan_id = #{planId}
 	</delete>
 
 	<!--  여행 계획(public) list -->
-	<select id="listPublicTripPlan" parameterType="String" resultMap="plan">
-		select p.plan_id, m.userEmail, p.startDate, p.endDate, p.publicStatus,
-		from trip_plan p
+	<select id="listPublicTripPlan" resultMap="plan">
+		select p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
+		from trip_plan p left join users m on p.user_id = m.user_id
 		where p.public = true;
 	</select>
 
 	<!--  여행 계획(user) list -->
-	<select id="listUserTripPlan" parameterType="String" resultMap="plan">
-		select p.plan_id, m.userEmail, p.startDate, p.endDate, p.publicStatus,
-		from trip_plan p, users m
-		where b.userId = m.userId;
+	<select id="listUserTripPlan" parameterType="int" resultMap="plan">
+		select p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
+		from trip_plan p left join users m on p.user_id = m.user_id
+		where p.user_id = #{userId}
 	</select>
 
 	<!--  여행세부계획 insert	-->
@@ -146,8 +147,8 @@
 	</delete>
 
 	<!--  여행세부계획 List	-->
-	<select id="listTripAttraction" parameterType="String" resultType="attraction">
-		select i.content_id, i.content_type_id, i.title, i.addr1, i.sido_code, i.gugun_code, i.latitude
+	<select id="listTripAttraction" parameterType="int" resultMap="Attraction">
+		select i.content_id, i.content_type_id, i.title, i.addr1, i.zipcode, i.tel, i.first_image, i.sido_code, i.gugun_code, i.latitude, i.longitude, i.mlevel
 		from trip_plan p
 		    left join trip_attraction a on p.plan_id = a.plan_id
 			left join attraction_info i on a.content_id = i.content_id
@@ -163,11 +164,11 @@
 	<!--  여행맴버 delete	-->
 	<delete id="deleteTripMember" parameterType="tripMember">
 		delete from trip_member
-		where plan_id = #{planId} and content_id = #{userId}
+		where plan_id = #{planId} and user_id = #{userId}
 	</delete>
 
 	<!--  여행 참여 맴버 list	-->
-	<select id="listTripMember" parameterType="String" resultMap="user">
+	<select id="listTripMember" parameterType="int" resultMap="user">
 		select u.user_id, u.user_email, u.user_name, u.user_img
 		from trip_plan p
 			 left join trip_member m on p.plan_id = m.plan_id
