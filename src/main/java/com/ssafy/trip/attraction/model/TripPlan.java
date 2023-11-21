@@ -19,9 +19,9 @@ public class TripPlan {
     @ApiModelProperty(value = "생성자 아이디")
     private String userEmail;
     @ApiModelProperty(value = "여행 시작일")
-    private String startDate;
+    private Timestamp startDate;
     @ApiModelProperty(value = "여행 종료일")
-    private String endDate;
+    private Timestamp endDate;
     @ApiModelProperty(value = "공개 상태")
     private boolean publicStatus;
 }
