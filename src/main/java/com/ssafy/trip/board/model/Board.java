@@ -25,6 +25,6 @@ public class Board {
     @ApiModelProperty(value = "등록 시간")
     private String registerTime;
     @ApiModelProperty(value = "업로드된 파일")
-    private List<FileInfo> fileInfos;
+    private FileInfo fileInfo;
 
 }

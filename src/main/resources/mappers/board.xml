@@ -12,10 +12,7 @@
         <result column="content" property="content"/>
         <result column="hit" property="hit"/>
         <result column="register_time" property="registerTime"/>
-    </resultMap>
-
-    <resultMap type="board" id="viewArticle" extends="article">
-        <collection property="fileInfos" column="article_no" javaType="list" ofType="fileInfo" select="fileInfoList"/>
+        <association property="fileInfo" resultMap="file"/>
     </resultMap>
 
     <resultMap type="fileInfo" id="file">
@@ -34,10 +31,7 @@
 
     <insert id="registerFile" parameterType="board">
         insert into file_info (article_no, save_folder, original_file, save_file)
-        values
-        <foreach collection="fileInfos" item="fileinfo" separator=" , ">
-            (#{articleNo}, #{fileinfo.saveFolder}, #{fileinfo.originalFile}, #{fileinfo.saveFile})
-        </foreach>
+        values (#{articleNo}, #{fileInfo.saveFolder}, #{fileInfo.originalFile}, #{fileInfo.saveFile})
     </insert>
 
     <sql id="search">
@@ -68,14 +62,14 @@
         </where>
     </select>
 
-    <select id="getArticle" parameterType="int" resultMap="viewArticle">
+    <select id="getArticle" parameterType="int" resultMap="article">
         select b.article_no, b.user_id, b.subject, b.content, b.hit, b.register_time, m.user_name
         from board b, users m
         where b.user_id = m.user_id
           and b.article_no = #{articleNo}
     </select>
 
-    <select id="fileInfoList" resultMap="file">
+    <select id="fileInfo" resultMap="file">
         select save_folder, original_file, save_file
         from file_info
         where article_no = #{articleNo}

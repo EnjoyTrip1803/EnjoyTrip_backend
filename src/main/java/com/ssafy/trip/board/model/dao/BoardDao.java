@@ -28,7 +28,7 @@ public interface BoardDao {
 
     void deleteArticle(int articleNo) throws SQLException;
 
-    List<FileInfo> fileInfoList(int articleNo) throws Exception;
+    FileInfo fileInfo(int articleNo) throws Exception;
 
 
 }

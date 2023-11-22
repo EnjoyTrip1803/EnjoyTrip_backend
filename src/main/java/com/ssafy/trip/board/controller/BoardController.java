@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -41,15 +47,15 @@ public class BoardController {
     }
 
     @ApiOperation(value = "글 등록", notes = "글 정보를 받아 등록")
-    @PostMapping("/write")
-    public ResponseEntity<?> write(Board board, @RequestParam(value = "upfile", required = false) MultipartFile[] files) {
+    @PostMapping("/write" )
+    public ResponseEntity<?> write(Board board, @RequestParam(value = "upfile", required = false) MultipartFile file) {
         log.debug("write boardDto : {}", board);
-
+        log.debug("upload : {}", file);
 //		log 관련 설정.
         log.debug("uploadPath : {}, uploadImagePath : {}, uploadFilePath : {}", uploadPath, uploadImagePath, uploadFilePath);
         try {
-            if (!files[0].isEmpty()) {
-                log.debug("MultipartFile.isEmpty : {}", files[0].isEmpty());
+            if (file != null && !file.isEmpty()) {
+                log.debug("MultipartFile.isEmpty : {}", file.isEmpty());
     //			String realPath = servletContext.getRealPath(UPLOAD_PATH);
     //			String realPath = servletContext.getRealPath("/resources/img");
                 String today = new SimpleDateFormat("yyMMdd").format(new Date());
@@ -58,22 +64,19 @@ public class BoardController {
                 File folder = new File(saveFolder);
                 if (!folder.exists())
                     folder.mkdirs();
-                List<FileInfo> fileInfos = new ArrayList<FileInfo>();
-                for (MultipartFile mfile : files) {
-                    FileInfo fileInfo = new FileInfo();
-                    String originalFileName = mfile.getOriginalFilename();
-                    if (!originalFileName.isEmpty()) {
-                        String saveFileName = UUID.randomUUID().toString()
-                                + originalFileName.substring(originalFileName.lastIndexOf('.'));
-                        fileInfo.setSaveFolder(today);
-                        fileInfo.setOriginalFile(originalFileName);
-                        fileInfo.setSaveFile(saveFileName);
-                        log.debug("원본 파일 이름 : {}, 실제 저장 파일 이름 : {}", mfile.getOriginalFilename(), saveFileName);
-                        mfile.transferTo(new File(folder, saveFileName));
-                    }
-                    fileInfos.add(fileInfo);
+                FileInfo fileInfo = new FileInfo();
+
+                String originalFileName = file.getOriginalFilename();
+                if (!originalFileName.isEmpty()) {
+                    String saveFileName = UUID.randomUUID().toString()
+                            + originalFileName.substring(originalFileName.lastIndexOf('.'));
+                    fileInfo.setSaveFolder(today);
+                    fileInfo.setOriginalFile(originalFileName);
+                    fileInfo.setSaveFile(saveFileName);
+                    log.debug("원본 파일 이름 : {}, 실제 저장 파일 이름 : {}", file.getOriginalFilename(), saveFileName);
+                    file.transferTo(new File(folder, saveFileName));
                 }
-                board.setFileInfos(fileInfos);
+                board.setFileInfo(fileInfo);
             }
 
             boardService.writeArticle(board);
@@ -141,6 +144,28 @@ public class BoardController {
         }
     }
 
+    @CrossOrigin
+    @GetMapping("/display")
+    public ResponseEntity<?> display(@RequestParam Map<String, String> map) {
+        log.debug("display debug : {}", map);
+        String savePath = uploadPath + map.get("today")+ "/" + map.get("savefile");
+        Path path = Paths.get(savePath);
+        try {
+            Resource resource = new InputStreamResource(Files.newInputStream(path));
+            if(!resource.exists())
+                return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
+            HttpHeaders header = new HttpHeaders();
+            Path filePath = null;
+
+            filePath = Paths.get(savePath);
+            header.add("Content-type", Files.probeContentType(filePath));
+
+            return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+        } catch (IOException e) {
+            exceptionHandling(e);
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     private ResponseEntity<String> exceptionHandling(Exception e) {
         HttpHeaders resHeaders = new HttpHeaders();

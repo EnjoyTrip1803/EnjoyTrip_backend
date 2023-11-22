@@ -28,8 +28,8 @@ public class BoardServiceImpl implements BoardService {
         System.out.println("글입력 전 dto : " + board);
         boardDao.writeArticle(board);
         System.out.println("글입력 후 dto : " + board);
-        List<FileInfo> fileInfos = board.getFileInfos();
-        if (fileInfos != null && !fileInfos.isEmpty()) {
+        FileInfo fileInfo = board.getFileInfo();
+        if (fileInfo != null) {
             boardDao.registerFile(board);
         }
     }
@@ -46,15 +46,20 @@ public class BoardServiceImpl implements BoardService {
         int start = pgNo * 10 - 10;
         param.put("start", start);
         param.put("listsize", 10);
-
-        return boardDao.listArticle(param);
+        List<Board> boards = boardDao.listArticle(param);
+        for(Board board : boards){
+            board.setFileInfo(boardDao.fileInfo(board.getArticleNo()));
+        }
+        return boards;
     }
 
 
 
     @Override
     public Board getArticle(int articleNo) throws Exception {
-        return boardDao.getArticle(articleNo);
+        Board board = boardDao.getArticle(articleNo);
+        board.setFileInfo(boardDao.fileInfo(articleNo));
+        return board;
     }
 
     @Override
@@ -70,13 +75,11 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public void deleteArticle(int articleNo, String path) throws Exception {
-        List<FileInfo> fileList = boardDao.fileInfoList(articleNo);
+        FileInfo fileInfo = boardDao.fileInfo(articleNo);
         boardDao.deleteFile(articleNo);
         boardDao.deleteArticle(articleNo);
-        for(FileInfo fileInfo : fileList) {
-            File file = new File(path + File.separator + fileInfo.getSaveFolder() + File.separator + fileInfo.getSaveFile());
-            file.delete();
-        }
+        File file = new File(path + File.separator + fileInfo.getSaveFolder() + File.separator + fileInfo.getSaveFile());
+        file.delete();
     }
 
 
