@@ -103,7 +103,7 @@
 	</select>
 
 	<!--  여행 계획 insert  -->
-	<insert id="registTripPlan" parameterType="tripPlan">
+	<insert id="registTripPlan" parameterType="tripPlan" useGeneratedKeys="true" keyProperty="planId">
 		insert into trip_plan (title, user_id, trip_start_date, trip_end_date, public)
 		values (#{title}, #{userId}, #{startDate}, #{endDate}, #{publicStatus})
 	</insert>

@@ -112,7 +112,7 @@ public class AttractionController {
 			service.registTripPlan(tripPlan);
 
 			return ResponseEntity.
-					status(HttpStatus.CREATED).body("성공적으로 여행 계획 등록하였습니다.");
+					status(HttpStatus.CREATED).body(tripPlan);
 		} catch (Exception e) {
 			return exceptionHandling(e);
 		}
