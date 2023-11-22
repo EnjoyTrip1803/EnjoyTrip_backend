@@ -7,6 +7,7 @@
 	<resultMap type="AreaCode" id="AreaCode">
 		<result column="sido_code" property="sidoCode"/>
 		<result column="sido_name" property="sidoName"/>
+		<result column="img" property="sidoImg"/>
 		<result column="gugun_code" property="gugunCode"/>
 		<result column="gugun_name" property="gugunName"/>
 	</resultMap>
@@ -67,7 +68,7 @@
 	</resultMap>
 
 	<select id="getSido" resultMap="AreaCode">
-		SELECT	sido_code, sido_name
+		SELECT	sido_code, sido_name, img
 		FROM	sido
 	</select>
 	
