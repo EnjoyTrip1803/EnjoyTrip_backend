@@ -25,9 +25,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public void writeArticle(Board board) throws Exception {
-        System.out.println("글입력 전 dto : " + board);
         boardDao.writeArticle(board);
-        System.out.println("글입력 후 dto : " + board);
         FileInfo fileInfo = board.getFileInfo();
         if (fileInfo != null) {
             boardDao.registerFile(board);
@@ -68,8 +66,20 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void modifyArticle(Board board) throws Exception {
+    public void modifyArticle(Board board, String path) throws Exception {
+        Board oriBoard = boardDao.getArticle(board.getArticleNo());
         boardDao.modifyArticle(board);
+
+        FileInfo fileInfo = board.getFileInfo();
+        if (fileInfo != null) {
+            FileInfo oriFile = oriBoard.getFileInfo();
+            if(oriFile != null){
+                File file = new File(path + File.separator + oriFile.getSaveFolder() + File.separator + oriFile.getSaveFile());
+                file.delete();
+            }
+            fileInfo.setArticleNo(board.getArticleNo());
+            boardDao.updateFile(fileInfo);
+        }
     }
 
     @Override
@@ -78,8 +88,10 @@ public class BoardServiceImpl implements BoardService {
         FileInfo fileInfo = boardDao.fileInfo(articleNo);
         boardDao.deleteFile(articleNo);
         boardDao.deleteArticle(articleNo);
-        File file = new File(path + File.separator + fileInfo.getSaveFolder() + File.separator + fileInfo.getSaveFile());
-        file.delete();
+        if(fileInfo != null) {
+            File file = new File(path + File.separator + fileInfo.getSaveFolder() + File.separator + fileInfo.getSaveFile());
+            file.delete();
+        }
     }
 
 

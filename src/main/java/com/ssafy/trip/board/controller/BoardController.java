@@ -119,13 +119,39 @@ public class BoardController {
 
     @ApiOperation(value = "글 수정", notes = "특정 글 내용 수정")
     @PutMapping("/modify")
-    public ResponseEntity<?> modify(Board board) {
-
+    public ResponseEntity<?> modify(Board board, @RequestParam(value = "upfile", required = false) MultipartFile file) {
         log.debug("modify boardDto : {}", board);
         try {
-            boardService.modifyArticle(board);
+            if (file != null && !file.isEmpty()) {
+                log.debug("MultipartFile.isEmpty : {}", file.isEmpty());
+                //			String realPath = servletContext.getRealPath(UPLOAD_PATH);
+                //			String realPath = servletContext.getRealPath("/resources/img");
+                String today = new SimpleDateFormat("yyMMdd").format(new Date());
+                String saveFolder = uploadPath + File.separator + today;
+                log.debug("저장 폴더 : {}", saveFolder);
+                File folder = new File(saveFolder);
+                if (!folder.exists())
+                    folder.mkdirs();
+                FileInfo fileInfo = new FileInfo();
+
+                String originalFileName = file.getOriginalFilename();
+                if (!originalFileName.isEmpty()) {
+                    String saveFileName = UUID.randomUUID().toString()
+                            + originalFileName.substring(originalFileName.lastIndexOf('.'));
+                    fileInfo.setSaveFolder(today);
+                    fileInfo.setOriginalFile(originalFileName);
+                    fileInfo.setSaveFile(saveFileName);
+                    log.debug("원본 파일 이름 : {}, 실제 저장 파일 이름 : {}", file.getOriginalFilename(), saveFileName);
+                    file.transferTo(new File(folder, saveFileName));
+                }
+                board.setFileInfo(fileInfo);
+            }
+
+            boardService.modifyArticle(board, uploadPath);
+
             return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (Exception e) {
+        } catch (Exception e){
+            e.printStackTrace();
             return exceptionHandling(e);
         }
     }
@@ -140,6 +166,7 @@ public class BoardController {
             boardService.deleteArticle(articleNo, uploadPath);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
+            e.printStackTrace();
             return exceptionHandling(e);
         }
     }

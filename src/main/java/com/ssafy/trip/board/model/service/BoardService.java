@@ -12,7 +12,7 @@ public interface BoardService {
     Board getArticle(int articleNo) throws Exception;
     void updateHit(int articleNo) throws Exception;
 
-    void modifyArticle(Board board) throws Exception;
+    void modifyArticle(Board board, String path) throws Exception;
     void deleteArticle(int articleNo, String path) throws Exception;
 
 
