@@ -25,6 +25,7 @@ public interface BoardDao {
     void modifyArticle(Board board) throws SQLException;
 
     void deleteFile(int articleNo) throws Exception;
+    void updateFile(FileInfo fileInfo) throws SQLException;
 
     void deleteArticle(int articleNo) throws SQLException;
 

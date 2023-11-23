@@ -92,6 +92,12 @@
         where article_no = #{articleNo}
     </delete>
 
+    <update id="updateFile" parameterType="fileInfo">
+        update file_info
+        set save_folder = #{saveFolder}, original_file=#{originalFile}, save_file=#{saveFile}
+        where article_no = #{articleNo}
+    </update>
+
     <delete id="deleteArticle" parameterType="int">
         delete from board
         where article_no = #{articleNo}
