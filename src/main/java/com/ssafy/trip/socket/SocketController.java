@@ -10,8 +10,15 @@ import org.springframework.stereotype.Controller;
 public class SocketController {
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
-    @MessageMapping("/socket")
-    public void socket(){
-//        simpMessageSendingOperations.convertAndSend("/topic/방번호", response값);
+    @MessageMapping("/chat")
+    public void socketChat(){
+//        simpMessageSendingOperations.convertAndSend("/topic/channel/방번호", response값);
     }
+
+    @MessageMapping("/plan")
+    public void socketPlan(){
+//        simpMessageSendingOperations.convertAndSend("/topic/channel/방번호", response값);
+    }
+
+
 }
