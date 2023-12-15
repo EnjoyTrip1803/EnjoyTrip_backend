@@ -89,6 +89,20 @@ public class AttractionController {
 		}
 	}
 
+	@ApiOperation(value = "관광지 정보", notes = "관광지별 정보 반환")
+	@GetMapping(value = "/info/{contentId}")
+	public ResponseEntity<?> infoAttraction(@PathVariable int contentId) {
+		log.debug("detailAttraction call");
+		try {
+			Attraction attraction = service.getAttraction(contentId);
+			return ResponseEntity.
+					status(HttpStatus.OK).
+					body(attraction);
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
+
 	@ApiOperation(value = "관광지 세부 정보", notes = "관광지별 세부정보 반환")
 	@GetMapping(value = "/detail/{contentId}")
 	public ResponseEntity<?> detailAttraction(@PathVariable int contentId) {

@@ -13,6 +13,7 @@ public interface AttractionService {
 
 	List<Attraction> listAttraction(SearchCondition serchCondition);
 
+	Attraction getAttraction(int contentId);
 	AttractionDescription detailAttraction(int contentId);
 
 

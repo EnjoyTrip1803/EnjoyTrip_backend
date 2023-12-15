@@ -19,6 +19,7 @@ public interface AttractionDao {
 	List<AreaCode> getGugun(int areaCode);
 	List<ContentType> getContentType();
 	List<Attraction > listAttraction(SearchCondition serchCondition);
+	Attraction getAttraction(int contentId);
 	AttractionDescription detailAttraction(int contentId);
 
 	void registTripPlan(TripPlan trip) throws SQLException;
