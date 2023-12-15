@@ -91,6 +91,12 @@
 									<if test="word != null"> and title like concat('%', #{word}, '%')</if>
 								</where>)
 	</select>
+
+	<select id="getAttraction" parameterType="int" resultMap="Attraction">
+		SELECT	content_id, content_type_id, title, addr1, zipcode, tel, first_image, sido_code, gugun_code, latitude, longitude, mlevel
+		FROM	attraction_info
+		WHERE	content_id = #{contentId}
+	</select>
 	
 	<select id="detailAttraction" parameterType="int" resultMap="AttractionDescription">
 		SELECT	content_id, homepage, overview
