@@ -34,6 +34,10 @@ public class AttractionServiceImpl implements AttractionService {
 		return dao.listAttraction(serchCondition);
 	}
 
+
+	public Attraction getAttraction(int contentId) {
+		return dao.getAttraction(contentId);
+	}
 	@Override
 	public AttractionDescription detailAttraction(int contentId) {
 		return dao.detailAttraction(contentId);
