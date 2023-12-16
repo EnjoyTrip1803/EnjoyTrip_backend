@@ -19,8 +19,8 @@ public class SocketController {
     }
 
     @MessageMapping("/plan")
-    public void socketPlan(){
-//        simpMessageSendingOperations.convertAndSend("/topic/channel/방번호", response값);
+    public void socketPlan(Plan plan){
+        simpMessageSendingOperations.convertAndSend("/topic/channel/"+ plan.getPlanId(), plan);
     }
 
 
