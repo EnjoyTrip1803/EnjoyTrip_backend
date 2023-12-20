@@ -10,7 +10,7 @@ spring:
     hikari: 
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: ssafy
-      password: ssafy*
+      password: ssafy
       pool-name: Hikari Connection Pool
       
 # hikariCP property setting
