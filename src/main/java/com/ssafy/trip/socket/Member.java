@@ -14,5 +14,5 @@ import java.util.Set;
 @NoArgsConstructor
 public class Member {
     private String type;
-    private Set<String> members = new HashSet<>();
+    private Set<Integer> members = new HashSet<>();
 }
