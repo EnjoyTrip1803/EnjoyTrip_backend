@@ -28,7 +28,6 @@ public class SocketController {
 
     @MessageMapping("/enter")
     public void socketEnter(Room room) {
-        System.out.println("enter test : "+room);
         Integer planId = room.getPlanId();
         Integer userId = room.getUserId();
 
@@ -41,7 +40,6 @@ public class SocketController {
         Member member = new Member();
         member.setType("room");
         member.setMembers(rooms.get(planId));
-        System.out.println(member);
         simpMessageSendingOperations.convertAndSend("/topic/channel/"+ planId, member);
     }
 
