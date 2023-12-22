@@ -22,7 +22,7 @@ public interface AttractionDao {
 	Attraction getAttraction(int contentId);
 	AttractionDescription detailAttraction(int contentId);
 
-	int registTripPlan(TripPlan trip) throws SQLException;
+	void registTripPlan(TripPlan trip) throws SQLException;
 	void updateTripPlan(TripPlan trip) throws SQLException;
 	void deleteTripPlan(int planId) throws SQLException;
 	List<TripPlan> listPublicTripPlan() throws SQLException;

@@ -114,7 +114,7 @@
 		insert into trip_plan (title, user_id, trip_start_date, trip_end_date, public)
 		values (#{title}, #{userId}, #{startDate}, #{endDate}, #{publicStatus})
 -- 		여행 계획 생성시 생성된 planId 값 받아오기
-		<selectKey resultType="int" keyProperty="planId" order="AFTER">
+		<selectKey resultType="int" keyProperty="planId">
 			select last_insert_id()
 		</selectKey>
 	</insert>
