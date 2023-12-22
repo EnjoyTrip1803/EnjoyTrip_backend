@@ -113,6 +113,10 @@
 	<insert id="registTripPlan" parameterType="tripPlan" useGeneratedKeys="true" keyProperty="planId">
 		insert into trip_plan (title, user_id, trip_start_date, trip_end_date, public)
 		values (#{title}, #{userId}, #{startDate}, #{endDate}, #{publicStatus})
+-- 		여행 계획 생성시 생성된 planId 값 받아오기
+		<selectKey resultType="int" keyProperty="planId" order="AFTER">
+			select last_insert_id()
+		</selectKey>
 	</insert>
 
 	<!--  여행 계획 update -->
@@ -137,9 +141,9 @@
 
 	<!--  여행 계획(user) list -->
 	<select id="listUserTripPlan" parameterType="int" resultMap="plan">
-		select p.title, p.plan_id, p.user_id, m.user_email, p.trip_start_date, p.trip_end_date, p.public
-		from trip_plan p left join users m on p.user_id = m.user_id
-		where p.user_id = #{userId}
+		select p.title, p.plan_id, p.user_id, u.user_email, p.trip_start_date, p.trip_end_date, p.public
+		from trip_plan p left join trip_member m on p.plan_id = m.plan_id left join users u on m.user_id = u.user_id
+		where m.user_id = #{userId};
 	</select>
 
 	<!--  여행세부계획 insert	-->
@@ -178,8 +182,7 @@
 	<!--  여행 참여 맴버 list	-->
 	<select id="listTripMember" parameterType="int" resultMap="user">
 		select u.user_id, u.user_email, u.user_name, u.user_img
-		from trip_plan p
-			 left join trip_member m on p.plan_id = m.plan_id
-			 left join users u on m.user_id = u.user_id
+		from trip_member m left join users u on m.user_id = u.user_id
+		where plan_id = #{planId}
 	</select>
 </mapper>
