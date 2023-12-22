@@ -12,7 +12,7 @@ import java.util.*;
 @Controller
 @RequiredArgsConstructor
 public class SocketController {
-    private Map<Integer, Set<String>> rooms = new HashMap<>();
+    private Map<Integer, Set<Integer>> rooms = new HashMap<>();
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
     @MessageMapping("/chat")
@@ -28,6 +28,7 @@ public class SocketController {
 
     @MessageMapping("/enter")
     public void socketEnter(Room room) {
+        System.out.println("enter test : "+room);
         Integer planId = room.getPlanId();
         Integer userId = room.getUserId();
 
@@ -36,12 +37,11 @@ public class SocketController {
             rooms.put(planId, new HashSet<>());
         }
 
-        String nickname = null; // userId로 닉네임 찾기
-        rooms.get(planId).add(nickname);
-
+        rooms.get(planId).add(userId);
         Member member = new Member();
         member.setType("room");
         member.setMembers(rooms.get(planId));
+        System.out.println(member);
         simpMessageSendingOperations.convertAndSend("/topic/channel/"+ planId, member);
     }
 
@@ -50,9 +50,6 @@ public class SocketController {
         Integer planId = room.getPlanId();
         Integer userId = room.getUserId();
         rooms.get(planId).remove(userId);
-
-        String nickname = null; // userId로 닉네임 찾기
-        rooms.get(planId).add(nickname);
 
         Member member = new Member();
         member.setType("room");
