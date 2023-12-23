@@ -46,6 +46,13 @@ public class AttractionServiceImpl implements AttractionService {
 	@Override
 	public void registTripPlan(TripPlan trip) throws SQLException {
 		dao.registTripPlan(trip);
+
+		TripMember member = new TripMember();
+		System.out.println("planId : " + trip.getPlanId());
+		member.setPlanId(trip.getPlanId());
+		member.setUserId(trip.getUserId());
+		member.setStatus(1);
+		dao.registTripMember(member);
 	}
 
 	@Override
