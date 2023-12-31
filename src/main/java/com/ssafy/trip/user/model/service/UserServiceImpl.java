@@ -28,6 +28,11 @@ public class UserServiceImpl implements UserService {
 	public User loginUser(Map<String, String> map) throws Exception {
 		return userDao.loginUser(map);
 	}
+	
+	@Override
+	public User findByUserId(String userId) throws Exception {
+		return userDao.findByUserId(userId);
+	}
 
 	@Override
 	public User findByUserEmail(String userEmail) throws Exception {

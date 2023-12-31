@@ -11,6 +11,7 @@ import com.ssafy.trip.user.model.User;
 public interface UserDao {
 	void joinUser(User user) throws SQLException;
 	User loginUser(Map<String, String> map) throws SQLException;
+	User findByUserId(String userId) throws SQLException;
 	User findByUserEmail(String email) throws SQLException;
 	User findByUserName(String name) throws SQLException;
 	void updateUser(User user) throws SQLException;

@@ -7,6 +7,7 @@ import com.ssafy.trip.user.model.User;
 public interface UserService {
 	void joinUser(User user) throws Exception;
 	User loginUser(Map<String, String> map) throws Exception;
+	User findByUserId(String userId) throws Exception;
 	User findByUserEmail(String userEmail) throws Exception;
 	User findByUserName(String userName) throws Exception;
 	void updateUser(User user) throws Exception;

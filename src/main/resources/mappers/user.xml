@@ -28,11 +28,18 @@
 	</select>
 	
 	<!-- 유저 조회 -->
+	<select id="findByUserId" parameterType="string" resultMap="user">
+		select user_id, user_email, user_password, user_name, join_date, user_img
+		from users
+		where user_id = #{userId}
+	</select>
+	
 	<select id="findByUserEmail" parameterType="string" resultMap="user">
 		select user_id, user_email, user_password, user_name, join_date, user_img
 		from users
 		where user_email = #{userEmail}
 	</select>
+	
 	<select id="findByUserName" parameterType="string" resultMap="user">
 		select user_id, user_email, user_password, user_name, join_date, user_img
 		from users
