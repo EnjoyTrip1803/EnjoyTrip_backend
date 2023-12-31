@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.ssafy.trip.invitation.model.Invitation;
+import com.ssafy.trip.attraction.model.TripMember;
 import com.ssafy.trip.sse.model.service.SseService;
 
 import io.swagger.annotations.Api;
@@ -28,7 +28,7 @@ public class SseController {
 
 	@Operation(summary = "SSE 연결")
 	@GetMapping(value = "/subscribe", produces = "text/event-stream")
-	public SseEmitter subscribe(@RequestParam String userId,
+	public SseEmitter subscribe(@RequestParam int userId,
 			@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 		log.debug("## SseController subscribe call");
 		log.debug("## userId is " + userId);
@@ -37,11 +37,11 @@ public class SseController {
 	}
 	
 	@PostMapping(value= "/dispatch")
-	public void dispatch(@RequestBody Invitation invitation) {
+	public void dispatch(@RequestBody TripMember tripMember) {
 		log.debug("## SseController dispatch call");
-		log.debug("## data is " + invitation.toString());
+		log.debug("## data is " + tripMember.toString());
 		
-		service.notify(invitation);
+		service.notify(tripMember);
 	}
 	
 }

@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.ssafy.trip.invitation.model.Invitation;
+import com.ssafy.trip.attraction.model.TripMember;
 import com.ssafy.trip.sse.model.dao.EmitterDao;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class SseServiceImpl implements SseService {
      * @param userId - 구독하는 클라이언트의 사용자 아이디.
      * @return SseEmitter - 서버에서 보낸 이벤트 Emitter
      */
-    public SseEmitter subscribe(String userId) {
+    public SseEmitter subscribe(int userId) {
     	log.debug("## SseService subscribe call");
 		log.debug("## userId is " + userId);
         SseEmitter emitter = createEmitter(userId);
@@ -43,9 +43,9 @@ public class SseServiceImpl implements SseService {
      * @param userId - 메세지를 전송할 사용자의 아이디.
      * @param event  - 전송할 이벤트 객체.
      */
-    public void notify(Invitation invitation) {
-		String event = new JSONObject(invitation).toString();
-        sendToClient(invitation.getReceiverName(), event, "invitation");
+    public void notify(TripMember tripMember) {
+		String event = new JSONObject(tripMember).toString();
+        sendToClient(tripMember.getUserId(), event, "invitation");
     }
 
     /**
@@ -54,7 +54,7 @@ public class SseServiceImpl implements SseService {
      * @param id   - 데이터를 받을 사용자의 아이디.
      * @param data - 전송할 데이터.
      */
-    public void sendToClient(String id, String event, String name) {
+    public void sendToClient(int id, String event, String name) {
         SseEmitter emitter = emitterDao.get(id);
         if (emitter != null) {
             try {
@@ -72,7 +72,7 @@ public class SseServiceImpl implements SseService {
      * @param id - 사용자 아이디.
      * @return SseEmitter - 생성된 이벤트 Emitter.
      */
-    public SseEmitter createEmitter(String id) {
+    public SseEmitter createEmitter(int id) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
         emitterDao.save(id, emitter);
 
