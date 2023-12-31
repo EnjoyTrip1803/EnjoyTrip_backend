@@ -20,6 +20,7 @@ public interface AttractionService {
 	void registTripPlan(TripPlan trip) throws SQLException;
 	void updateTripPlan(TripPlan trip) throws SQLException;
 	void deleteTripPlan(int planId) throws SQLException;
+	TripPlan findTripPlan(int planId) throws SQLException;
 	List<TripPlan> listPublicTripPlan() throws SQLException;
 	List<TripPlan> listUserTripPlan(int userId) throws SQLException;
 
@@ -28,6 +29,11 @@ public interface AttractionService {
 	List<Attraction> listTripAttraction(int planId) throws SQLException;
 
 	void registTripMember(TripMember tripMember) throws SQLException;
+	void updataTripMemberStatus(TripMember tripMember) throws SQLException;
+	TripMember findTripMember(TripMember tripMember) throws SQLException;
 	void deleteTripMember(TripMember tripMember) throws SQLException;
 	List<User> listTripMember(int planId) throws SQLException;
+	
+	List<Integer> listInvitation(int userId) throws SQLException;
+	
 }

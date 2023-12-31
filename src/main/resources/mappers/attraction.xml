@@ -58,6 +58,13 @@
 		<result column="trip_end_date" property="endDate"/>
 		<result column="public" property="publicStatus"/>
 	</resultMap>
+	
+	<!--  여행 계획 (TripPlan) Map  -->
+	<resultMap type="tripMember" id="tripMember">
+		<result column="plan_id" property="planId"/>
+		<result column="user_id" property="userId"/>
+		<result column="status" property="status"/>
+	</resultMap>
 
 	<!--  여행 참여 맴버 Map	-->
 	<resultMap type="user" id="user">
@@ -113,7 +120,7 @@
 	<insert id="registTripPlan" parameterType="tripPlan" useGeneratedKeys="true" keyProperty="planId">
 		insert into trip_plan (title, user_id, trip_start_date, trip_end_date, public)
 		values (#{title}, #{userId}, #{startDate}, #{endDate}, #{publicStatus})
--- 		여행 계획 생성시 생성된 planId 값 받아오기
+<!-- 		여행 계획 생성시 생성된 planId 값 받아오기 -->
 		<selectKey resultType="int" keyProperty="planId">
 			select last_insert_id()
 		</selectKey>
@@ -131,6 +138,14 @@
 		delete from trip_plan
 		where plan_id = #{planId}
 	</delete>
+	
+	<!--  여행 계획 find-->
+	<select id="findTripPlan" parameterType="int" resultMap="plan">
+		select plan_id, user_id, trip_start_date, trip_end_date, public, title
+		from trip_plan
+		where plan_id = #{planId};
+	</select>
+	
 
 	<!--  여행 계획(public) list -->
 	<select id="listPublicTripPlan" resultMap="plan">
@@ -143,7 +158,7 @@
 	<select id="listUserTripPlan" parameterType="int" resultMap="plan">
 		select p.title, p.plan_id, p.user_id, u.user_email, p.trip_start_date, p.trip_end_date, p.public
 		from trip_plan p left join trip_member m on p.plan_id = m.plan_id left join users u on m.user_id = u.user_id
-		where m.user_id = #{userId};
+		where m.user_id = #{userId} and m.status != 0;
 	</select>
 
 	<!--  여행세부계획 insert	-->
@@ -169,9 +184,24 @@
 
 	<!--  여행맴버 insert	-->
 	<insert id="registTripMember" parameterType="tripMember">
-		insert into trip_member (plan_id, user_id)
-		values (#{planId}, #{userId})
+		insert into trip_member (plan_id, user_id, status)
+		values (#{planId}, #{userId}, #{status})
 	</insert>
+	
+	<!--  여행맴버 insert	-->
+	<insert id="updataTripMemberStatus" parameterType="tripMember">
+		UPDATE trip_member
+		SET status = #{status}
+		WHERE plan_id = #{planId} and user_id = #{userId};
+		
+	</insert>
+	
+	<!--  여행 참여 맴버 select	-->
+	<select id="findTripMember" parameterType="tripMember" resultMap="tripMember">
+		select plan_id, user_id, status
+		from trip_member
+		where plan_id = #{planId} and user_id = #{userId}
+	</select>
 
 	<!--  여행맴버 delete	-->
 	<delete id="deleteTripMember" parameterType="tripMember">
@@ -185,4 +215,32 @@
 		from trip_member m left join users u on m.user_id = u.user_id
 		where plan_id = #{planId}
 	</select>
+	
+	<!--  여행 참여 맴버 list	-->
+	<select id="listInvitation" parameterType="int" resultType="int">
+		select  plan_id
+		from trip_member
+		where user_id = #{userId} and status = 0
+	</select>
+	
+	
+	<!--  notification List	-->
+	<!-- <select id="getInvitationByName" parameterType="String" resultMap="Invitation">
+		SELECT	invitation_id, sender_name, receiver_name, plan_id
+		FROM	invitation
+		WHERE	receiver_name = #{name}
+	</select> -->
+	
+	<!--  create invitation	-->
+	<!-- <insert id="createInvitation" parameterType="Invitation" useGeneratedKeys="true" keyProperty="invitationId">
+		INSERT INTO invitation (sender_name, receiver_name, plan_id)
+		values (#{senderName}, #{receiverName}, #{planId})
+	</insert> -->
+
+	<!--  delete invitation by invitation_id -->
+	<!-- <delete id="deleteInvitation" parameterType="int">
+		DELETE FROM	invitation
+		WHERE		invitation_id = #{invitationId}
+	</delete> -->
+	
 </mapper>

@@ -160,6 +160,20 @@ public class AttractionController {
 			return exceptionHandling(e);
 		}
 	}
+	
+	@ApiOperation(value = "여행 계획 검색", notes = "여행 계획 검색")
+	@GetMapping(value = "/plan-find/{planId}")
+	public ResponseEntity<?> findTripPlan(@PathVariable int planId) {
+		log.debug("Get findTripPlan : {}", planId);
+		try {
+			TripPlan result = service.findTripPlan(planId);
+
+			return ResponseEntity.
+					status(HttpStatus.OK).body(result);
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
 
 	@ApiOperation(value = "공개된 여행 계획 리스트", notes = "공개된 여행 계획 리스트 반환")
 	@GetMapping(value = "/plan/list")
@@ -253,6 +267,7 @@ public class AttractionController {
 			return exceptionHandling(e);
 		}
 	}
+	
 
 	@ApiOperation(value = "여행 맴버 등록", notes = "여행 맴버 등록")
 	@PostMapping(value = "/plan-member")
@@ -264,6 +279,36 @@ public class AttractionController {
 
 			return ResponseEntity.
 					status(HttpStatus.CREATED).body("성공적으로 여행 맴버를 등록하였습니다.");
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
+	
+	@ApiOperation(value = "여행 맴버 status 수정", notes = "여행 맴버 status 수정")
+	@PostMapping(value = "/plan-member/status")
+	public ResponseEntity<?> updataTripMemberStatus(@RequestBody TripMember tripMember) {
+		log.debug("tripMember status update : {}", tripMember);
+		try {
+			service.updataTripMemberStatus(tripMember);
+			return ResponseEntity.
+					status(HttpStatus.CREATED).body("성공적으로 여행 맴버를 등록하였습니다.");
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
+	
+	@ApiOperation(value = "여행 맴버 검색", notes = "여행 맴버 검색")
+	@GetMapping(value = "/plan-member-find/{planId}/{userId}")
+	public ResponseEntity<?> findTripMember(@PathVariable int planId, @PathVariable int userId) {
+		log.debug("Find TripMember : {}, {}", planId, userId);
+		try {
+			TripMember member = new TripMember();
+			member.setPlanId(planId);
+			member.setUserId(userId);
+			TripMember result = service.findTripMember(member);
+
+			return ResponseEntity.
+					status(HttpStatus.OK).body(result);
 		} catch (Exception e) {
 			return exceptionHandling(e);
 		}
@@ -305,7 +350,55 @@ public class AttractionController {
 			return exceptionHandling(e);
 		}
 	}
+	
+	@ApiOperation(value = "초대 리스트", notes = "초대 리스트")
+	@GetMapping(value = "/invitation/list/{userId}")
+	public ResponseEntity<?> listInvitation(@PathVariable int userId) {
+		log.debug("## call listTripMember : " + userId);
+		try {
+			List<Integer> list = service.listInvitation(userId);
 
+			if (list != null) {
+				return ResponseEntity.
+						status(HttpStatus.OK).
+						body(list);
+			}
+			return ResponseEntity.
+					status(HttpStatus.OK).
+					body(Collections.EMPTY_LIST);
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
+
+	
+	
+//	@GetMapping()
+//	public List<TripMember> getInvitationList(@RequestParam int userId) {
+//		log.debug("## Controller getInvitationList call");
+//		log.debug("## name is " + userId);
+//
+//		return service.getInvitationByUserId(userId);		
+//	}
+//	
+//	@PostMapping()
+//	public int createInvitation(@RequestBody TripMember tripMember) {
+//		log.debug("## Controller createInvitation call");
+//		log.debug("## Invitation is " + tripMember.toString());
+//		
+//		service.createInvitation(tripMember);
+//		log.debug("## InvitationId is " + tripMember.getPlanId() + ", " + tripMember.getUserId());
+//		return tripMember.getPlanId();
+////		return service.createInvitation(invitation);
+//	}
+//
+//	@DeleteMapping()
+//	public void deleteInvitation(@RequestParam int planId, @RequestParam int userId) {
+//		log.debug("## Controller deleteInvitation call");
+//		log.debug("## invitationId is " + planId + ", " + userId);
+//		
+//		service.deleteInvitation(planId, userId);
+//	}
 	private ResponseEntity<String> exceptionHandling(Exception e) {
 		e.printStackTrace();
 		return new ResponseEntity<String>("Error : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
